@@ -1,0 +1,89 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sfathima <sfathima@student.42abudhabi      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/10/17 10:39:43 by sfathima          #+#    #+#             */
+/*   Updated: 2021/10/19 13:31:26 by sfathima         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "get_next_line.h"
+
+int	ft_strlen(const char *s)
+{
+	int	i;
+
+	if (s == NULL)
+		return (0);
+	i = 0;
+	while (s[i] != '\0')
+		i++;
+	return (i);
+}
+
+char	*get_line(char *str)
+{
+	char	*s1;
+	char	*s2;
+
+	s1 = ft_strchr(str, '\n');
+	if (s1 == NULL && *str != 0)
+	{
+		s2 = ft_strdup(str);
+		return (s2);
+	}
+	else if (s1 != NULL)
+	{
+		s2 = ft_substr(str, 0, (s1 - str + 1));
+		return (s2);
+	}
+	return (NULL);
+}
+
+void	ft_memory(char **mem, int ln)
+{
+	char	*temp;
+
+	temp = ft_strdup(*mem + ln);
+	free(*mem);
+	*mem = temp;
+}
+
+char	*ft_free(char *memory)
+{
+	free(memory);
+	memory = NULL;
+	return (NULL);
+}
+
+char	*get_next_line(int fd)
+{
+	static char	*str;
+	char		*buf;
+	int			flag;
+
+	flag = 1;
+	buf = malloc(sizeof(char) * BUFFER_SIZE + 1);
+	if (buf == NULL)
+		return (NULL);
+	while (flag != 0 && (ft_strchr(str, '\n') == NULL))
+	{
+		flag = read(fd, buf, BUFFER_SIZE);
+		if (flag < 0)
+			return (ft_free(buf));
+		buf[flag] = '\0';
+		str = ft_strjoin(str, buf);
+	}
+	buf = ft_free(buf);
+	buf = get_line(str);
+	if (ft_strlen(str) == 0)
+	{
+		str = ft_free(str);
+		return (NULL);
+	}
+	ft_memory(&str, ft_strlen(buf));
+	return (buf);
+}
